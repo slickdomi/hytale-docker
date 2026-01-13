@@ -2,6 +2,8 @@
 
 A Docker container setup for running a Hytale dedicated server with Java 25 support.
 
+Available in dockerhub at [https://hub.docker.com/repository/docker/slickdomi/hytale-docker](https://hub.docker.com/repository/docker/slickdomi/hytale-docker)
+
 ## Features
 
 - **Automatic Server Download** - Downloads Hytale server files automatically on first run
@@ -45,7 +47,7 @@ mkdir -p server data
 cat > docker-compose.yml << 'EOF'
 services:
   hytale:
-    image: slickdomique/hytale-docker:latest
+    image: slickdomi/hytale-docker:latest
     container_name: hytale-server
     restart: unless-stopped
     ports:
@@ -75,7 +77,7 @@ If you want to build the image yourself:
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/SlickDomique/hytale-docker.git
+git clone https://github.com/SlickDomi/hytale-docker.git
 cd hytale-docker
 ```
 

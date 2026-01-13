@@ -1,0 +1,12 @@
+# Persistent and server data
+data/
+server/
+
+# Environment configuration
+.env
+
+# Logs
+*.log
+
+# IDE files
+.vscode/

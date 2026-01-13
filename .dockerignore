@@ -1,0 +1,23 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# Data directories (these should be mounted as volumes)
+data/
+server/
+
+# Logs
+*.log
+
+# IDE files
+.vscode
