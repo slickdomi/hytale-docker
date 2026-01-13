@@ -1,6 +1,6 @@
 services:
   hytale:
-    image: SlickDomique/hytale-docker:latest
+    image: SlickDomi/hytale-docker:latest
     container_name: hytale-server
     restart: unless-stopped
 
