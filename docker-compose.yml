@@ -18,10 +18,10 @@ services:
     # Environment variables
     environment:
       # Maximum memory allocation (adjust based on server size)
-      # Small server (4-10 players): 4G
+      # Small server (2-5 players): 6G
       # Medium server (20-30 players): 8G
       # Large server (50+ players): 12G
-      - HYTALE_MAX_MEMORY=4G
+      - HYTALE_MAX_MEMORY=6G
 
       # Server port (default: 5520)
       - HYTALE_PORT=5520

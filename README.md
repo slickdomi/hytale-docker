@@ -4,6 +4,8 @@ A Docker container setup for running a Hytale dedicated server with Java 25 supp
 
 Available in dockerhub at [https://hub.docker.com/repository/docker/slickdomi/hytale-docker](https://hub.docker.com/repository/docker/slickdomi/hytale-docker)
 
+After setting server up refer to **Server Authentication**
+
 ## Features
 
 - **Automatic Server Download** - Downloads Hytale server files automatically on first run
@@ -20,7 +22,7 @@ Available in dockerhub at [https://hub.docker.com/repository/docker/slickdomi/hy
 Based on official Hytale documentation:
 
 ### Minimum Requirements
-- 4GB RAM
+- 6GB RAM
 - 4 CPU cores
 - Java 25
 - UDP port 5520 (or custom port)
@@ -29,8 +31,8 @@ Based on official Hytale documentation:
 
 | Server Size | Players | CPU Cores | RAM | View Distance |
 |------------|---------|-----------|-----|---------------|
-| Small | 4-10 | 4 | 4-6 GB | 12 chunks |
-| Medium | 20-30 | 6 | 8-10 GB | 12 chunks |
+| Small | 2-5 | 4 | 6-8 GB | 12 chunks |
+| Medium | 5-30 | 6 | 8-10 GB | 12 chunks |
 | Large | 50+ | 8+ | 12+ GB | 10-12 chunks |
 
 ## Quick Start
@@ -56,7 +58,7 @@ services:
       - ./server:/hytale/server
       - ./data:/hytale/data
     environment:
-      - HYTALE_MAX_MEMORY=4G
+      - HYTALE_MAX_MEMORY=6G
       - HYTALE_AUTO_DOWNLOAD=true
     stdin_open: true
     tty: true
@@ -143,7 +145,12 @@ docker attach hytale-server
 
 3. Follow the on-screen instructions to authenticate with your Hytale account.
 
-4. Detach from the console: Press `Ctrl+P` then `Ctrl+Q`
+4. Run the command to set the storage of secrets
+```
+/auth persistence Encrypted
+```
+
+5. Detach from the console: Press `Ctrl+P` then `Ctrl+Q`
 
 ## Configuration
 
@@ -154,7 +161,7 @@ Edit the `docker-compose.yml` or create a `.env` file:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `HYTALE_AUTO_DOWNLOAD` | `true` | Automatically download server files on first run |
-| `HYTALE_MAX_MEMORY` | `4G` | Maximum memory allocation (4G, 8G, 12G, etc.) |
+| `HYTALE_MAX_MEMORY` | `6G` | Maximum memory allocation (6G, 8G, 12G, etc.) |
 | `HYTALE_PORT` | `5520` | Server port (UDP) |
 | `HYTALE_BIND` | `0.0.0.0` | Bind address (0.0.0.0 for all interfaces) |
 | `HYTALE_AOT_CACHE` | `true` | Enable AOT caching for performance |
@@ -165,8 +172,8 @@ Edit the `docker-compose.yml` or create a `.env` file:
 Adjust `HYTALE_MAX_MEMORY` based on your server size:
 
 ```yaml
-# Small server (4-10 players)
-- HYTALE_MAX_MEMORY=4G
+# Small server (2-5 players)
+- HYTALE_MAX_MEMORY=6G
 
 # Medium server (20-30 players)
 - HYTALE_MAX_MEMORY=8G
@@ -311,7 +318,7 @@ services:
           memory: 8G
         reservations:
           cpus: '2'
-          memory: 4G
+          memory: 6G
 ```
 
 ## Authentication

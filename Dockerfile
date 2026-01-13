@@ -36,7 +36,7 @@ RUN chmod +x /entrypoint.sh /download.sh
 WORKDIR /hytale/server
 
 # Default environment variables
-ENV HYTALE_MAX_MEMORY=4G \
+ENV HYTALE_MAX_MEMORY=6G \
     HYTALE_PORT=5520 \
     HYTALE_BIND=0.0.0.0 \
     HYTALE_AOT_CACHE=true \

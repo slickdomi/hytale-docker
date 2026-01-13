@@ -57,10 +57,10 @@ fi
 
 # Create symbolic links for data directory if they don't exist
 DATA_DIR="/hytale/data"
-mkdir -p "$DATA_DIR"/{.cache,logs,mods,universe}
+mkdir -p "$DATA_DIR"/{.cache,.secrets,logs,mods,universe}
 
-# Link persistent directories
-for dir in .cache logs mods universe config.json permissions.json whitelist.json bans.json; do
+# Link persistent directories (including .secrets for auth persistence)
+for dir in .cache .secrets logs mods universe config.json permissions.json whitelist.json bans.json; do
     if [ -e "/hytale/server/$dir" ] && [ ! -L "/hytale/server/$dir" ]; then
         echo "Moving existing $dir to data directory..."
         mv "/hytale/server/$dir" "$DATA_DIR/" 2>/dev/null || true
@@ -104,7 +104,10 @@ echo "Memory: ${HYTALE_MAX_MEMORY}"
 echo "Port: ${HYTALE_PORT} (UDP)"
 echo "Bind: ${HYTALE_BIND}"
 echo ""
-echo -e "${YELLOW}Note: You need to authenticate the server using '/auth login device'${NC}"
+echo -e "${YELLOW}IMPORTANT: After first authentication, you MUST run:${NC}"
+echo -e "${YELLOW}  1. /auth login device${NC}"
+echo -e "${YELLOW}  2. /auth persistence Encrypted${NC}"
+echo -e "${YELLOW}This ensures your authentication persists across restarts!${NC}"
 echo ""
 
 # Execute the server
