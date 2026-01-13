@@ -61,7 +61,7 @@ job "hytale-server" {
       }
 
       config {
-        image = "slickdomique/hytale-docker:latest"
+        image = "slickdomi/hytale-docker:latest"
 
         # UDP port mapping
         ports = ["game"]
