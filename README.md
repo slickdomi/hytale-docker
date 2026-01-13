@@ -2,6 +2,8 @@
 
 A Docker container setup for running a Hytale dedicated server with Java 25 support.
 
+Support discord at [hytale.works](https://discord.gg/6zZXJq7Zfb)
+
 Available in dockerhub at [https://hub.docker.com/repository/docker/slickdomi/hytale-docker](https://hub.docker.com/repository/docker/slickdomi/hytale-docker)
 
 After setting server up refer to **Server Authentication**
