@@ -1,0 +1,46 @@
+services:
+  hytale:
+    image: SlickDomique/hytale-docker:latest
+    container_name: hytale-server
+    restart: unless-stopped
+
+    # Port mapping (UDP for QUIC protocol)
+    ports:
+      - "5520:5520/udp"
+
+    # Volume mounts
+    volumes:
+      # Server files directory (will be auto-populated if HYTALE_AUTO_DOWNLOAD=true)
+      - ./server:/hytale/server
+      # Persistent data (world saves, configs, logs, mods)
+      - ./data:/hytale/data
+
+    # Environment variables
+    environment:
+      # Maximum memory allocation (adjust based on server size)
+      # Small server (4-10 players): 4G
+      # Medium server (20-30 players): 8G
+      # Large server (50+ players): 12G
+      - HYTALE_MAX_MEMORY=4G
+
+      # Server port (default: 5520)
+      - HYTALE_PORT=5520
+
+      # Bind address (0.0.0.0 for all interfaces)
+      - HYTALE_BIND=0.0.0.0
+
+      # Enable AOT (Ahead-of-Time) caching for better performance
+      - HYTALE_AOT_CACHE=true
+
+      # Auto-download server files (set to false to disable)
+      - HYTALE_AUTO_DOWNLOAD=true
+
+      # Additional Java options (optional)
+      # - JAVA_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=50
+
+    # Stdin and TTY for interactive console
+    stdin_open: true
+    tty: true
+
+    # Network mode
+    network_mode: bridge

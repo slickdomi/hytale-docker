@@ -1,0 +1,21 @@
+{
+  "server": {
+    "name": "My Hytale Server",
+    "description": "A Hytale server running in Docker",
+    "maxPlayers": 20,
+    "viewDistance": 12,
+    "port": 5520,
+    "motd": "Welcome to my Hytale server!"
+  },
+  "world": {
+    "seed": "",
+    "difficulty": "normal",
+    "gamemode": "survival",
+    "pvp": true,
+    "spawnProtection": 16
+  },
+  "performance": {
+    "autoSave": true,
+    "autoSaveInterval": 300
+  }
+}
