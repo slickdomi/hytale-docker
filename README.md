@@ -163,11 +163,71 @@ Edit the `docker-compose.yml` or create a `.env` file:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `HYTALE_AUTO_DOWNLOAD` | `true` | Automatically download server files on first run |
+| `HYTALE_VERSION` | `""` (latest) | Server version control - see [Version Control](#version-control) below |
 | `HYTALE_MAX_MEMORY` | `6G` | Maximum memory allocation (6G, 8G, 12G, etc.) |
 | `HYTALE_PORT` | `5520` | Server port (UDP) |
 | `HYTALE_BIND` | `0.0.0.0` | Bind address (0.0.0.0 for all interfaces) |
 | `HYTALE_AOT_CACHE` | `true` | Enable AOT caching for performance |
 | `JAVA_OPTS` | Empty | Additional Java options |
+
+### Version Control
+
+Control which server version to run and whether to auto-update:
+
+**Auto-update mode (default):**
+```yaml
+environment:
+  # Leave unset or set to "latest" to always get the newest version
+  - HYTALE_VERSION=latest
+  # or simply omit the variable entirely
+```
+
+When `HYTALE_VERSION` is unset or set to `"latest"`:
+- On first start: Downloads the latest server version
+- On restart: Checks for updates and downloads if a new version is available
+- Won't re-download if you already have the current latest version
+- Version is automatically detected from the downloaded ZIP filename
+
+**Pin to specific version:**
+```yaml
+environment:
+  # Pin to a specific version - prevents auto-updates
+  - HYTALE_VERSION=2026.01.17-4b0f30090
+```
+
+When set to a specific version:
+- Uses existing server files if they match the pinned version
+- **Prevents downloading updates** - if versions don't match, shows an error
+- Useful for production servers that need stability
+- **Note**: The Hytale downloader can only download "latest", so you must already have the pinned version downloaded
+
+**Important Notes:**
+- The Hytale downloader CLI only supports downloading the "latest" version
+- You cannot download old/specific versions - pinning only prevents updates
+- To get the version number: Check your logs after download or look at the ZIP filename
+- Version format example: `2026.01.17-4b0f30090`
+
+**Version tracking:**
+- The current version is stored in `/hytale/server/.hytale_version`
+- This file persists in your `./server` volume
+- Delete this file to force a re-download on next restart
+
+**Example workflow for version pinning:**
+```bash
+# 1. Start with latest
+docker compose up -d
+
+# 2. Check what version was downloaded
+docker compose logs | grep "Version"
+# Output: Version 2026.01.17-4b0f30090 saved to version file
+
+# 3. Pin to that version in docker-compose.yml
+environment:
+  - HYTALE_VERSION=2026.01.17-4b0f30090
+
+# 4. Restart - will use existing files, won't update
+docker compose restart
+```
 
 ### Memory Recommendations
 

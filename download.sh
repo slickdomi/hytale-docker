@@ -51,19 +51,95 @@ chmod +x "$DOWNLOADER" 2>/dev/null || true
 # Change to server directory
 cd "$SERVER_DIR"
 
-# Check if server files already exist
-if [ -f "$SERVER_DIR/HytaleServer.jar" ] && [ -f "$SERVER_DIR/Assets.zip" ]; then
-    echo -e "${YELLOW}Server files already exist. Checking for updates...${NC}"
+# Version tracking file
+VERSION_FILE="$SERVER_DIR/.hytale_version"
 
-    # Check for updates
-    if "$DOWNLOADER" -check-update 2>/dev/null; then
-        echo -e "${GREEN}Server files are up to date!${NC}"
-        exit 0
+# Function to get the latest version from downloader
+get_latest_version() {
+    # Run downloader with -print-version flag to get latest available version
+    "$DOWNLOADER" -print-version 2>/dev/null || echo "unknown"
+}
+
+# Determine if we need to download
+NEED_DOWNLOAD=false
+
+if [ -f "$SERVER_DIR/HytaleServer.jar" ] && [ -f "$SERVER_DIR/Assets.zip" ]; then
+    echo -e "${YELLOW}Server files exist. Checking version...${NC}"
+
+    # If HYTALE_VERSION is not set or is "latest", check for updates
+    if [ -z "$HYTALE_VERSION" ] || [ "$HYTALE_VERSION" = "latest" ]; then
+        echo "Version tracking: latest (auto-update mode)"
+
+        # Get current version if tracked
+        CURRENT_VERSION=""
+        if [ -f "$VERSION_FILE" ]; then
+            CURRENT_VERSION=$(cat "$VERSION_FILE")
+            echo "Current version: $CURRENT_VERSION"
+
+            # Check what the latest available version is
+            echo "Checking for updates..."
+            LATEST_VERSION=$(get_latest_version)
+
+            if [ "$LATEST_VERSION" != "unknown" ] && [ -n "$LATEST_VERSION" ]; then
+                echo "Latest version available: $LATEST_VERSION"
+
+                if [ "$CURRENT_VERSION" = "$LATEST_VERSION" ]; then
+                    echo -e "${GREEN}Server is already up to date!${NC}"
+                    NEED_DOWNLOAD=false
+                else
+                    echo -e "${YELLOW}New version available! $CURRENT_VERSION -> $LATEST_VERSION${NC}"
+                    NEED_DOWNLOAD=true
+                fi
+            else
+                # Can't determine latest version, download to be safe
+                echo -e "${YELLOW}Cannot determine latest version, will re-download${NC}"
+                NEED_DOWNLOAD=true
+            fi
+        else
+            echo "No version file found - will download latest"
+            NEED_DOWNLOAD=true
+        fi
     else
-        echo -e "${YELLOW}Updates available. Downloading...${NC}"
+        # Specific version requested - PINNED MODE
+        echo "Version tracking: $HYTALE_VERSION (pinned)"
+
+        if [ -f "$VERSION_FILE" ]; then
+            CURRENT_VERSION=$(cat "$VERSION_FILE")
+            if [ "$CURRENT_VERSION" = "$HYTALE_VERSION" ]; then
+                echo -e "${GREEN}Server version matches pinned version: $HYTALE_VERSION${NC}"
+                # Version matches, use existing files
+                NEED_DOWNLOAD=false
+            else
+                echo -e "${RED}ERROR: Version mismatch!${NC}"
+                echo "Current version: $CURRENT_VERSION"
+                echo "Requested version: $HYTALE_VERSION"
+                echo ""
+                echo -e "${YELLOW}The Hytale downloader can only download the LATEST version.${NC}"
+                echo "You have two options:"
+                echo "1. Use the existing version by setting: HYTALE_VERSION=$CURRENT_VERSION"
+                echo "2. Update to latest by setting: HYTALE_VERSION=latest"
+                echo "3. Delete server files and download latest: rm -rf ./server/*"
+                exit 1
+            fi
+        else
+            # No version file - this means fresh download
+            # Since we can only download latest, warn the user
+            echo -e "${YELLOW}WARNING: No existing version found.${NC}"
+            echo "The Hytale downloader can only download the LATEST version."
+            echo "Requested pinned version: $HYTALE_VERSION"
+            echo ""
+            echo "Will download latest and tag it as version $HYTALE_VERSION"
+            echo "This may not match the actual latest version number!"
+            NEED_DOWNLOAD=true
+        fi
+    fi
+
+    if [ "$NEED_DOWNLOAD" = false ]; then
+        exit 0
     fi
 else
     echo -e "${YELLOW}Server files not found. Downloading...${NC}"
+    NEED_DOWNLOAD=true
 fi
 
 # Run the downloader
@@ -87,7 +163,9 @@ if "$DOWNLOADER"; then
     DOWNLOADED_ZIP=$(find "$SERVER_DIR" -maxdepth 1 -name "*.zip" -type f | head -n 1)
 
     if [ -n "$DOWNLOADED_ZIP" ] && [ -f "$DOWNLOADED_ZIP" ]; then
-        echo -e "${YELLOW}Extracting downloaded files from $(basename "$DOWNLOADED_ZIP")...${NC}"
+        # Extract version from ZIP filename (e.g., "2026.01.17-4b0f30090.zip")
+        DOWNLOADED_VERSION=$(basename "$DOWNLOADED_ZIP" .zip)
+        echo -e "${YELLOW}Extracting downloaded files from $DOWNLOADED_VERSION.zip...${NC}"
 
         # Extract the ZIP file directly to the server directory
         if unzip -o "$DOWNLOADED_ZIP" -d "$SERVER_DIR/"; then
@@ -139,6 +217,24 @@ if "$DOWNLOADER"; then
         echo "File sizes:"
         echo "  HytaleServer.jar: $JAR_SIZE"
         echo "  Assets.zip: $ASSETS_SIZE"
+
+        # Save version information
+        # DOWNLOADED_VERSION was extracted from the ZIP filename earlier
+        if [ -n "$DOWNLOADED_VERSION" ]; then
+            echo "$DOWNLOADED_VERSION" > "$VERSION_FILE"
+            echo -e "${GREEN}Version $DOWNLOADED_VERSION saved to version file${NC}"
+        else
+            # Fallback: try to get version from downloader
+            FALLBACK_VERSION=$("$DOWNLOADER" -print-version 2>/dev/null | tail -1 || echo "unknown")
+            if [ "$FALLBACK_VERSION" != "unknown" ] && [ -n "$FALLBACK_VERSION" ]; then
+                echo "$FALLBACK_VERSION" > "$VERSION_FILE"
+                echo -e "${GREEN}Version $FALLBACK_VERSION saved to version file${NC}"
+            else
+                # Last resort: use timestamp
+                echo "$(date +%Y%m%d-%H%M%S)" > "$VERSION_FILE"
+                echo -e "${YELLOW}Version timestamp saved (actual version unknown)${NC}"
+            fi
+        fi
 
         exit 0
     else

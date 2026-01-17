@@ -35,6 +35,10 @@ services:
       # Auto-download server files (set to false to disable)
       - HYTALE_AUTO_DOWNLOAD=true
 
+      # Server version (leave unset or set to "latest" for auto-updates)
+      # Set to a specific version (e.g., "1.0.5") to pin and prevent updates
+      # - HYTALE_VERSION=latest
+
       # Additional Java options (optional)
       # - JAVA_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=50
 
